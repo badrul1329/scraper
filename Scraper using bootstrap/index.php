@@ -6,9 +6,28 @@ $url='https://www.tripadvisor.com/TravelersChoice-Hotels-cLuxury-g1';
 $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
 $html = file_get_html($url);
 $ret = $html->find('div[class=c_content]');
+//get Caegory with links
 foreach ($ret as $div) {
-    $result[] = array('category'=>$div->first_child()->childNodes(1)->plaintext,'link'=>$domain.$div->first_child()->href);
+    $categoryName=$div->first_child()->childNodes(1)->plaintext;
+    $categoryLink='https://www.'.$domain.$div->first_child()->href; 
+    //get hotel name and Link and reviews
+    $categories[] = array('categoryName'=>$categoryName,'categoryLink'=>$categoryLink);
 }
+$result=array('categories'=>$categories);
+
+//get hotel name & link
+//$url='https://www.tripadvisor.com/TravelersChoice-Hotels-cLuxury-g1';
+//$domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
+//$html = file_get_html($url);
+//$ret = $html->find('div[class=winnerName]');
+//foreach($ret as $data){
+//    $hotelName=$data->first_child()->plaintext;
+//    $hotelLink='https://www.'.$domain.$data->first_child()->first_child()->href;
+//    $hotels[]=array('hotelName'=>$hotelName,'hotelLink'=>$hotelLink);
+//}
+//$result=array('categories'=>$hotels);
+
+//get hotel reviews
 
 ?>
 <!DOCTYPE html>
@@ -36,7 +55,7 @@ foreach ($ret as $div) {
             <div class="row">
 
                 <div class="col-lg-12">
-                    <form action="index.php" method="post">
+                    <form action="" method="post">
                         <input type="url" class="form-control" placeholder="https://www.sitename.com/..." name="url" required="required">
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Class Name" name="className" required="required">
