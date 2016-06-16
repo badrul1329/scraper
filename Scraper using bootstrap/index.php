@@ -16,19 +16,28 @@ include('simple_html_dom.php');
 //$result=array('categories'=>$categories);
 
 //get hotel name & link
-$url='https://www.tripadvisor.com/TravelersChoice-Hotels-cLuxury-g1';
-$domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
-$html = file_get_html($url);
-$ret = $html->find('div[class=winnerName]');
-foreach($ret as $data){
-    $hotelName=$data->first_child()->plaintext;
-    $hotelLink='https://www.'.$domain.$data->first_child()->first_child()->href;
-    $hotels[]=array('hotelName'=>$hotelName,'hotelLink'=>$hotelLink);
-}
-$result=array('categories'=>$hotels);
+//$url='https://www.tripadvisor.com/TravelersChoice-Hotels-cLuxury-g1';
+//$domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
+//$html = file_get_html($url);
+//$ret = $html->find('div[class=winnerName]');
+//foreach($ret as $data){
+//    $hotelName=$data->first_child()->plaintext;
+//    $hotelLink='https://www.'.$domain.$data->first_child()->first_child()->href;
+//    $hotels[]=array('hotelName'=>$hotelName,'hotelLink'=>$hotelLink);
+//}
+//$result=array('hotels'=>$hotels);
 
 //get hotel reviews
-
+$url='https://www.tripadvisor.com/Hotel_Review-g309226-d4367721-Reviews-Nayara_Springs-La_Fortuna_de_San_Carlos_Arenal_Volcano_National_Park_Province_of_Alaju.html';
+$domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
+$html = file_get_html($url);
+$ret = $html->find('div[class=reviewSelector]');
+foreach ($ret as $data) {
+    $title=$data->find('div.quote',0)->plaintext;
+    $body=$data->find('div.entry',0)->first_child()->plaintext;
+    $reviews[]=array('title'=>$title,'body'=>$body);
+}
+$result=array('reviews'=>$reviews);
 ?>
 <!DOCTYPE html>
 <html lang="en">
