@@ -41,8 +41,11 @@ do{
 //        $reviews[] = array('title' => $title, 'body' => $body,'next'=>$url);
         $reviews[] = array('title' => $title, 'body' => $body);
     }
-    $url='https://www.'.$domain.$html->find('a[class=next]',0)->href;
-}while(!empty($html->find('a[class=next]',0)->href));
+	
+    if ($next = $html->find('a[class=next]', 0)) {
+        $url = 'https://www.' . $domain . $next->href;  
+    }
+}while($html->find('a[class=next]',0));
 
 $result=array('reviews'=>$reviews);
 ?>
