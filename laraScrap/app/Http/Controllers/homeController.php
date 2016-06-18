@@ -37,8 +37,22 @@ class homeController extends Controller {
         }
         $result['hotels'] = $hotels;
 
+//      get hotel reviews
+        $url = 'https://www.tripadvisor.com/Hotel_Review-g309226-d4367721-Reviews-Nayara_Springs-La_Fortuna_de_San_Carlos_Arenal_Volcano_National_Park_Province_of_Alaju.html';
 
-        
+        do {
+            $html = HtmlDomParser::file_get_html($url);
+            $ret = $html->find('div[class=reviewSelector]');
+            foreach ($ret as $data) {
+                $title = $data->find('div.quote', 0)->plaintext;
+                $body = $data->find('div.entry', 0)->first_child()->plaintext;
+                $reviews[] = array('title' => $title, 'body' => $body);
+            }
+            $url = 'https://www.' . $domain . $html->find('a[class=next]', 0)->href;
+        } while (!empty($html->find('a[class=next]', 0)->href));
+
+        $result['reviews'] = $reviews;
+
         return view('scraper', compact('result'));
     }
 
