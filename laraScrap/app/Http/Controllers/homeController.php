@@ -11,10 +11,19 @@ ini_set('max_execution_time', 300);
 class homeController extends Controller {
 
     public function index() {
-        
+        $url = 'https://www.tripadvisor.com/';
+        $html = HtmlDomParser::file_get_html($url);
+        (object)$ret = $html->find('div[class=featured wrap]');
+        foreach ($ret as $div){
+            $hotelName = $div->find('li[class=sprite-middot]',0)->plaintext;
+            $hotelLink = $url . $div->find('li[class=sprite-middot]',0)->href;
+            $hotels[] = array('hotelName' => $hotelName, 'hotelLink' => $hotelLink);
+        }
+        $result['hotels'] = $hotels;
+        return view('scraper', compact('result'));
     }
-    
-    public function categoryHotelReviews(){
+
+    public function categoryHotelReviews() {
         $url = 'https://www.tripadvisor.com/TravelersChoice-Hotels-cLuxury-g1';
         $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
         $html = HtmlDomParser::file_get_html($url);
@@ -52,11 +61,11 @@ class homeController extends Controller {
                 $reviews[] = array('title' => $title, 'body' => $body);
             }
             if ($next = $html->find('a[class=next]', 0)) {
-                $url = 'https://www.' . $domain . $next->href;  
+                $url = 'https://www.' . $domain . $next->href;
             }
         } while ($html->find('a[class=next]', 0));
 
-        $result['reviews'] =$reviews;
+        $result['reviews'] = $reviews;
 
         return view('scraper', compact('result'));
     }
