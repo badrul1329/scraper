@@ -11,3 +11,4 @@
 |
 */
 Route::get('/', 'homeController@index');
+Route::get('/categoryHotelReviews', 'homeController@categoryHotelReviews');

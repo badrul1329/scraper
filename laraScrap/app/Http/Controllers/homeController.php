@@ -11,8 +11,10 @@ ini_set('max_execution_time', 300);
 class homeController extends Controller {
 
     public function index() {
-
-
+        
+    }
+    
+    public function categoryHotelReviews(){
         $url = 'https://www.tripadvisor.com/TravelersChoice-Hotels-cLuxury-g1';
         $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
         $html = HtmlDomParser::file_get_html($url);
@@ -54,7 +56,7 @@ class homeController extends Controller {
             }
         } while ($html->find('a[class=next]', 0));
 
-        $result = array('reviews' => $reviews);
+        $result['reviews'] =$reviews;
 
         return view('scraper', compact('result'));
     }
