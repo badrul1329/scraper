@@ -7,70 +7,47 @@ use App\Http\Requests;
 use Sunra\PhpSimple\HtmlDomParser;
 
 ini_set('max_execution_time', 300);
+define('MAX_FILE_SIZE', 1500000);
 
 class homeController extends Controller {
 
     public function index() {
-        $url = 'https://www.tripadvisor.com';
-        $html = HtmlDomParser::file_get_html($url);
-        $ret = $html->find('div[class=featured wrap]');
-        foreach ($ret as $div) {
-            $hotelinfo = $div->find('li[class=sprite-middot]');
-            foreach ($hotelinfo as $data) {
-                $hotelName = $data->plaintext;
-                $hotelLink = $url.$data->first_child()->href;
-                $hotels[] = array('hotelName' => $hotelName, 'hotelLink' => $hotelLink);
+        //Placed hotel names
+//        $url = 'https://www.tripadvisor.com';
+//        $html = HtmlDomParser::file_get_html($url);
+//        $ret = $html->find('div[class=featured wrap]');
+//        foreach ($ret as $div) {
+//            $categoryinfo = $div->find('li[class=sprite-middot]');
+//            foreach ($categoryinfo as $data) {
+//                $categoryName = $data->plaintext;
+//                $categoryLink = $url.$data->first_child()->href;
+//                $categories[] = array('categoryName' => $categoryName, 'categoryLink' => $categoryLink);
+//            }
+//        }
+//        $result['categories'] = $categories;
+        //get hotelinfo from category
+        $url = 'https://www.tripadvisor.com/Hotels-g29092-Anaheim_California-Hotels.html';
+//        $url = 'https://www.tripadvisor.com/Hotels-g29092-oa90-Anaheim_California-Hotels.html#ACCOM_OVERVIEW';
+        $domain = parse_url($url, PHP_URL_HOST);
+        do{
+            $html = HtmlDomParser::file_get_html($url);
+            $hotels['next']=$html->find('a[class=next]',0);
+            $ret = $html->find('div[class=listing_info]');
+            foreach ($ret as $div) {
+                $hotelName = $div->find('div[class=listing_title]', 0)->first_child()->plaintext;
+                $hotelLink = 'https://' . $domain . $div->find('div[class=listing_title]', 0)->first_child()->href;
+                $hotelReviews = $div->find('[class=more]', 0)->plaintext;
+                $hotelRate = $div->find('img[class=sprite-ratings]', 0)->alt;
+                foreach ($div->find('a[class=tag]') as $data) {
+                    $Tags[] = $data->plaintext;
+                }
+                $hotelTags = $Tags;
+                unset($Tags);
+                $hotels[] = array('hotelName' => $hotelName, 'hotelLink' => $hotelLink,'hotelReviews' => $hotelReviews,'hotelRate' => $hotelRate, 'hotelTags' => $hotelTags);
             }
-        }
+        } while($html->find('a[class=next]', 0));
+
         $result['hotels'] = $hotels;
         return view('scraper', compact('result'));
     }
-
-//    public function categoryHotelReviews() {
-//        $url = 'https://www.tripadvisor.com/TravelersChoice-Hotels-cLuxury-g1';
-//        $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
-//        $html = HtmlDomParser::file_get_html($url);
-//        $ret = $html->find('div[class=c_content]');
-//
-////get Category with links
-//        foreach ($ret as $div) {
-//            $categoryName = $div->first_child()->childNodes(1)->plaintext;
-//            $categoryLink = 'https://www.' . $domain . $div->first_child()->href;
-//            $categories[] = array('categoryName' => $categoryName, 'categoryLink' => $categoryLink);
-//        }
-//        $result['categories'] = $categories;
-//
-////      get hotel name & link
-//        $url = 'https://www.tripadvisor.com/TravelersChoice-Hotels-cLuxury-g1';
-//        $html = HtmlDomParser::file_get_html($url);
-//        $ret = $html->find('div[class=winnerName]');
-//        foreach ($ret as $data) {
-//            $hotelName = $data->first_child()->plaintext;
-//            $hotelLink = 'https://www.' . $domain . $data->first_child()->first_child()->href;
-//            $hotels[] = array('hotelName' => $hotelName, 'hotelLink' => $hotelLink);
-//        }
-//        $result['hotels'] = $hotels;
-//
-////get hotel reviews
-//        $url = 'https://www.tripadvisor.com/Hotel_Review-g309226-d4367721-Reviews-Nayara_Springs-La_Fortuna_de_San_Carlos_Arenal_Volcano_National_Park_Province_of_Alaju.html';
-//        $domain = str_ireplace('www.', '', parse_url($url, PHP_URL_HOST));
-//
-//        do {
-//            $html = HtmlDomParser::file_get_html($url);
-//            $ret = $html->find('div[class=reviewSelector]');
-//            foreach ($ret as $data) {
-//                $title = $data->find('div.quote', 0)->plaintext;
-//                $body = $data->find('div.entry', 0)->first_child()->plaintext;
-//                $reviews[] = array('title' => $title, 'body' => $body);
-//            }
-//            if ($next = $html->find('a[class=next]', 0)) {
-//                $url = 'https://www.' . $domain . $next->href;
-//            }
-//        } while ($html->find('a[class=next]', 0));
-//
-//        $result['reviews'] = $reviews;
-//
-//        return view('scraper', compact('result'));
-//    }
-
 }
